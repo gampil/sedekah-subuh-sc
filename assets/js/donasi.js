@@ -1,5 +1,8 @@
 (function () {
   "use strict";
+  /* Form donasi — TANPA payment gateway. Donatur submit → invoice dibuat
+   * (status pending_payment) → transfer manual → unggah bukti → approval admin
+   * via web/Telegram → invoice resmi dikirim ke email donatur. */
 
   var UI = window.SedekahUI,
       API = window.SedekahAPI,
@@ -22,8 +25,7 @@
 
   function amount() {
     return ricePackage
-      ? Number(ricePackage.price) *
-          Math.max(1, Math.round(Number(UI.$("#quantity").value || 1)))
+      ? Number(ricePackage.price) * Math.max(1, Math.round(Number(UI.$("#quantity").value || 1)))
       : Math.round(Number(UI.$("#amount").value || 0));
   }
 
@@ -57,78 +59,28 @@
         minimum = Number(settings.minimumDonation || 10000),
         anonymous = UI.$("#anonymous").checked;
 
-    ok = error(
-      "amount",
-      a < minimum
-        ? "Minimal " + UI.formatRupiah(minimum) + "."
-        : a > 100000000
-          ? "Maksimal Rp100.000.000."
-          : ""
-    ) && ok;
-
-    ok = error(
-      "name",
-      !anonymous && UI.$("#name").value.trim().length < 2
-        ? "Nama minimal 2 karakter."
-        : ""
-    ) && ok;
-
-    ok = error(
-      "phone",
-      !/^62\d{8,13}$/.test(phone(UI.$("#phone").value))
-        ? "Nomor WhatsApp belum valid."
-        : ""
-    ) && ok;
-
-    var email = UI.$("#email").value.trim();
-
-    ok = error(
-      "email",
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-        ? "Masukkan email yang valid agar konfirmasi berhasil diterima."
-        : ""
-    ) && ok;
-
-    UI.$("#terms-error").textContent = UI.$("#terms").checked
-      ? ""
-      : "Persetujuan diperlukan.";
-
+    ok = error("amount", a < minimum ? "Minimal " + UI.formatRupiah(minimum) + "." : a > 100000000 ? "Maksimal Rp100.000.000." : "") && ok;
+    ok = error("name", !anonymous && UI.$("#name").value.trim().length < 2 ? "Nama minimal 2 karakter." : "") && ok;
+    ok = error("phone", !/^62\d{8,13}$/.test(phone(UI.$("#phone").value)) ? "Nomor WhatsApp belum valid." : "") && ok;
+    ok = error("email", !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(UI.$("#email").value.trim()) ? "Masukkan email yang valid agar invoice terkirim." : "") && ok;
+    UI.$("#terms-error").textContent = UI.$("#terms").checked ? "" : "Persetujuan diperlukan.";
     return ok && UI.$("#terms").checked;
-  }
-
-  function paymentChanged() {
-    var method = document.querySelector(
-      'input[name="paymentMethod"]:checked'
-    ).value;
-
-    UI.$("#bank-selector").classList.toggle(
-      "hidden",
-      method !== "manual_bank"
-    );
   }
 
   async function submit(event) {
     event.preventDefault();
-
     if (!program || !validate()) return;
 
-    var button = UI.$("#submit-donation"),
-        original = button.textContent;
-
+    var button = UI.$("#submit-donation"), original = button.textContent;
     button.disabled = true;
-    button.textContent = "Menyiapkan transaksi…";
-
-    var method = document.querySelector(
-      'input[name="paymentMethod"]:checked'
-    ).value;
+    button.classList.add("is-loading");
+    button.textContent = "Membuat invoice…";
 
     var payload = {
       programId: program.id,
       programSlug: program.slug,
       packageId: ricePackage ? ricePackage.id : "",
-      quantity: ricePackage
-        ? Math.max(1, Math.round(Number(UI.$("#quantity").value || 1)))
-        : 0,
+      quantity: ricePackage ? Math.max(1, Math.round(Number(UI.$("#quantity").value || 1))) : 0,
       amount: amount(),
       name: UI.$("#name").value.trim(),
       phone: phone(UI.$("#phone").value),
@@ -136,8 +88,8 @@
       prayer: UI.$("#prayer").value.trim(),
       publishPrayer: UI.$("#publishPrayer").checked,
       anonymous: UI.$("#anonymous").checked,
-      paymentMethod: method,
-      bankAccountId: UI.$("#bankAccountId").value,
+      paymentMethod: "manual_bank",
+      bankAccountId: UI.$("#bankAccountId") ? UI.$("#bankAccountId").value : "",
       idempotencyKey: attemptKey,
       consentAccepted: true,
       consentVersion: String(settings.consentVersion || "1.0")
@@ -145,19 +97,15 @@
 
     try {
       var result = await API.createDonation(payload);
-
       if (!result || !result.id) throw new Error("ID transaksi tidak tersedia.");
-      var selectedBank = banks.find(function (bank) {
-        return String(bank.id) === String(payload.bankAccountId);
-      });
+      var selectedBank = banks.find(function (bank) { return String(bank.id) === String(payload.bankAccountId); }) || result.bank || null;
       window.SedekahTransaction.save({
         id: result.id,
-        status: method === "manual_bank" ? "awaiting_transfer" : "pending",
-        paymentMethod: method,
-        paymentUrl: result.paymentUrl || "",
-        qrImageUrl: result.qrImageUrl || "",
-        bank: method === "manual_bank" ? (selectedBank || result.bank || null) : null,
+        status: "pending_payment",
+        paymentMethod: "manual_bank",
+        bank: selectedBank,
         amount: result.amount == null ? payload.amount : result.amount,
+        instructions: result.instructions || "",
         programTitle: ricePackage ? ricePackage.name : program.title,
         createdAt: result.createdAt || new Date().toISOString()
       });
@@ -166,137 +114,72 @@
     } catch (e) {
       UI.toast(e.message, "error");
       button.disabled = false;
+      button.classList.remove("is-loading");
       button.textContent = original;
     }
   }
 
   document.addEventListener("DOMContentLoaded", async function () {
+    // Manfaatkan prefetch bootstrap dari api.js supaya form tampil seketika.
+    var boot = window.SedekahPrefetch ? await window.SedekahPrefetch.take() : await API.getBootstrap();
     try {
-      var data = await API.getBootstrap();
-      settings = data.settings || {};
+      if (!boot) throw new Error("Backend belum dikonfigurasi. Isi gasUrl di assets/js/config.js.");
+      settings = boot.settings || {};
       UI.applySettings(settings);
 
-      var packageId = new URLSearchParams(location.search).get("package") || "",
-          slug = new URLSearchParams(location.search).get("program") || "";
+      var params = new URLSearchParams(location.search),
+          packageId = params.get("package") || "",
+          slug = params.get("program") || "";
 
-      ricePackage = packageId
-        ? (data.packages || []).find(function (p) {
-            return p.id === packageId;
-          })
-        : null;
-
-      if (packageId && !ricePackage) {
-        throw new Error("Paket nasi tidak ditemukan.");
-      }
+      ricePackage = packageId ? (boot.packages || []).find(function (p) { return p.id === packageId; }) : null;
+      if (packageId && !ricePackage) throw new Error("Paket nasi tidak ditemukan.");
 
       program = ricePackage
-        ? (data.programs || []).find(function (p) {
-            return p.id === ricePackage.programId;
-          })
-        : (data.programs || []).find(function (p) {
-            return p.slug === slug;
-          });
+        ? (boot.programs || []).find(function (p) { return p.id === ricePackage.programId; })
+        : (boot.programs || []).find(function (p) { return p.slug === slug; }) || (boot.programs || [])[0];
 
-      if (!program) {
-        throw new Error("Program tidak ditemukan.");
-      }
+      if (!program) throw new Error("Program tidak ditemukan.");
 
       attemptKey = randomKey();
 
-      UI.setText(
-        "#donation-program-title",
-        ricePackage ? ricePackage.name : program.title
-      );
-
-      UI.setText(
-        "#summary-program-title",
-        ricePackage ? ricePackage.name : program.title
-      );
-
-      UI.setText(
-        "#summary-program-org",
-        program.organization || "SEDEKAH SUBUH HARAMAIN"
-      );
-
-      UI.$("#summary-image").src = UI.safeUrl(
-        (ricePackage && ricePackage.imageUrl) || program.imageUrl,
-        "/assets/img/hero-charity.webp"
-      );
+      UI.setText("#donation-program-title", ricePackage ? ricePackage.name : program.title);
+      UI.setText("#summary-program-title", ricePackage ? ricePackage.name : program.title);
+      UI.setText("#summary-program-org", program.organization || "SEDEKAH SUBUH HARAMAIN");
+      UI.$("#summary-image").src = UI.safeUrl((ricePackage && ricePackage.imageUrl) || program.imageUrl, "/assets/img/hero-charity.webp");
 
       if (ricePackage) {
-        UI.$("#package-summary").textContent =
-          ricePackage.description +
-          " — " +
-          UI.formatRupiah(ricePackage.price) +
-          " per paket";
-
+        UI.$("#package-summary").textContent = ricePackage.description + " — " + UI.formatRupiah(ricePackage.price) + " per paket";
         UI.$("#package-summary").classList.remove("hidden");
         UI.$("#quantity-wrap").classList.remove("hidden");
         UI.$("#amount-wrap").classList.add("hidden");
       }
 
-      var bankAvailable =
-        !!settings.manualBankEnabled && !!(data.banks || []).length;
+      banks = boot.banks || [];
+      if (!banks.length) throw new Error("Rekening tujuan belum dikonfigurasi. Hubungi admin.");
 
-      UI.$("#qris-choice").classList.toggle(
-        "hidden",
-        !settings.qrisEnabled
-      );
-
-      UI.$("#bank-choice").classList.toggle(
-        "hidden",
-        !bankAvailable
-      );
-
-      if (!settings.qrisEnabled && bankAvailable) {
-        UI.$("#bank-choice input").checked = true;
-      }
-
-      if (!settings.qrisEnabled && !bankAvailable) {
-        throw new Error("Belum ada metode pembayaran aktif.");
-      }
-
-      banks = data.banks || [];
       var select = UI.$("#bankAccountId");
-
-      (data.banks || []).forEach(function (b) {
-        select.appendChild(
-          UI.el("option", {
-            value: b.id,
-            text:
-              b.bankName +
-              " — " +
-              b.accountNumber +
-              " a.n. " +
-              b.accountHolder
-          })
-        );
+      banks.forEach(function (b, i) {
+        select.appendChild(UI.el("option", {
+          value: b.id,
+          text: b.bankName + " — " + b.accountNumber + " a.n. " + b.accountHolder,
+          selected: i === 0 ? "selected" : null
+        }));
       });
 
-      document
-        .querySelectorAll('input[name="paymentMethod"]')
-        .forEach(function (r) {
-          r.addEventListener("change", paymentChanged);
-        });
-
-      UI.$("#quantity").addEventListener("input", updateTotal);
-      UI.$("#amount").addEventListener("input", updateTotal);
-      UI.$("#nominal-grid").querySelectorAll(".nominal-card").forEach(function (card) {
+      UI.$("#quantity") && UI.$("#quantity").addEventListener("input", updateTotal);
+      UI.$("#amount") && UI.$("#amount").addEventListener("input", updateTotal);
+      var grid = UI.$("#nominal-grid");
+      if (grid) grid.querySelectorAll(".nominal-card").forEach(function (card) {
         card.addEventListener("click", function () { selectNominal(card); });
       });
-
-      UI.$("#anonymous").addEventListener("change", function (e) {
-        UI.$("#name").disabled = e.target.checked;
-      });
-
+      UI.$("#anonymous").addEventListener("change", function (e) { UI.$("#name").disabled = e.target.checked; });
       UI.$("#donation-form").addEventListener("submit", submit);
 
-      paymentChanged();
       updateTotal();
     } catch (e) {
-      UI.$("#donation-form").classList.add("hidden");
-      UI.$("#donation-error").classList.remove("hidden");
-      UI.setText("#donation-error-message", e.message);
+      var form = UI.$("#donation-form"), err = UI.$("#donation-error");
+      if (form) form.classList.add("hidden");
+      if (err) { err.classList.remove("hidden"); UI.setText("#donation-error-message", e.message); }
     }
   });
 })();

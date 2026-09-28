@@ -101,7 +101,8 @@
     var media = el("a", { class: "program-media", href: campaignUrl(program.slug), "aria-label": "Buka " + program.title });
     var imageUrl = safeUrl(program.imageUrl);
     if (imageUrl) {
-      var image = el("img", { src: imageUrl, alt: "", loading: "lazy", width: "640", height: "400" });
+      // TANPA lazy loading — gambar dimuat segera agar tidak terasa lemot.
+      var image = el("img", { src: imageUrl, alt: "", fetchpriority: "low", decoding: "async", width: "640", height: "400" });
       image.addEventListener("error", function () {
         clear(media);
         media.appendChild(el("div", { class: "program-fallback" }, [icon(categoryIcon(), "icon-lg")]));
@@ -114,14 +115,17 @@
     body.appendChild(el("div", { class: "program-org", text: program.organization || "Mitra terverifikasi" }));
     body.appendChild(el("h3", { class: "program-title" }, [el("a", { href: campaignUrl(program.slug), text: program.title })]));
     body.appendChild(el("p", { class: "program-excerpt", text: program.excerpt || "Bersama, kita dapat menghadirkan manfaat yang nyata." }));
-    var progress = el("div", { class: "progress-track", role: "progressbar", "aria-label": "Progres donasi", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(percent(program.collected, program.goal)) }, [el("div", { class: "progress-fill", style: "width:" + percent(program.collected, program.goal) + "%" })]);
-    body.appendChild(progress);
+    // Tanpa target & tanpa batas tanggal: progres hanya indikator aktivitas.
+    body.appendChild(el("div", { class: "raised-chip" }, [
+      el("span", { class: "raised-chip-dot", "aria-hidden": "true" }),
+      el("span", { text: program.raisedLabel || "Masih mengumpulkan hingga saat ini" })
+    ]));
     var stats = el("div", { class: "program-stats" }, [
-      el("div", { class: "program-raised" }, [el("strong", { text: formatRupiah(program.collected) }), el("span", { text: "dari " + formatRupiah(program.goal) })]),
-      el("span", { class: "program-days", text: daysLeft(program.deadline) })
+      el("div", { class: "program-raised" }, [el("strong", { text: formatRupiah(program.collected) }), el("span", { text: "terkumpul" })]),
+      el("span", { class: "program-days", text: "Berkelanjutan · tanpa batas waktu" })
     ]);
     body.appendChild(stats);
-    body.appendChild(el("a", { class: "btn btn-primary", href: donationUrl(program.slug) }, [document.createTextNode("Sedekah sekarang"), icon("arrow") ]));
+    body.appendChild(el("a", { class: "btn btn-primary", href: donationUrl(program.slug) }, [document.createTextNode("Sedekah sekarang"), icon("arrow")]));
     card.appendChild(media);
     card.appendChild(body);
     return card;
@@ -200,7 +204,7 @@
     actions.appendChild(menuButton);
     wrap.appendChild(actions);
     var mobile = el("nav", { id: "mobile-menu", class: "mobile-menu", "aria-label": "Navigasi seluler" }, [
-      navLink("Beranda", "/", "home"), navLink("Program sedekah", "/program/", "program"), navLink("Paket nasi", "/paket-nasi/", "paket-nasi"), navLink("Donatur", "/donatur/", "donatur"), navLink("Galeri", "/galeri/", "galeri"), navLink("Tentang kami", "/tentang/", "tentang"), navLink("Cek donasi", "/status/", "status"),
+      navLink("Beranda", "/", "home"), navLink("Program sedekah", "/program/", "program"), navLink("Paket nasi", "/paket-nasi/", "paket-nasi"), navLink("Donatur & doa", "/donatur/", "donatur"), navLink("Galeri", "/galeri/", "galeri"), navLink("Tentang kami", "/tentang/", "tentang"), navLink("Cek donasi", "/status/", "status"),
       el("a", { class: "btn btn-primary", href: "/program/" }, [document.createTextNode("Mulai sedekah"), icon("arrow")])
     ]);
     menuButton.addEventListener("click", function () {
@@ -224,9 +228,9 @@
     var about = el("div", {}, [brandNode(), el("p", { class: "footer-about", text: "Platform sedekah yang menghubungkan niat baik dengan program terverifikasi dan laporan yang transparan." })]);
     var programs = el("div", {}, [el("div", { class: "footer-title", text: "Jelajahi" }), el("div", { class: "footer-links" }, [el("a", { href: "/program/", text: "Semua program" }), el("a", { href: "/paket-nasi/", text: "Paket nasi" }), el("a", { href: "/donatur/", text: "Doa donatur" }), el("a", { href: "/galeri/", text: "Galeri" }), el("a", { href: "/status/", text: "Cek donasi" })])]);
     var legal = el("div", {}, [el("div", { class: "footer-title", text: "Informasi" }), el("div", { class: "footer-links" }, [el("a", { href: "/kebijakan-privasi/", text: "Kebijakan privasi" }), el("a", { href: "/syarat-ketentuan/", text: "Syarat & ketentuan" }), el("a", { href: "/admin/", text: "Panel admin" })])]);
-    var contact = el("div", {}, [el("div", { class: "footer-title", text: "Butuh bantuan?" }), el("div", { class: "footer-links" }, [el("a", { class:"support-email", href: "mailto:" + (config.supportEmail || "admin@example.org"), text: config.supportEmail || "admin@example.org" }), el("a", { class:"support-whatsapp", href: "https://wa.me/" + (config.supportWhatsApp || "6281234567890"), rel: "noopener noreferrer", target: "_blank", text: "WhatsApp dukungan" })])]);
+    var contact = el("div", {}, [el("div", { class: "footer-title", text: "Butuh bantuan?" }), el("div", { class: "footer-links" }, [el("a", { class:"support-email", href: "mailto:" + (config.supportEmail || "sedekahsubuhharamain@gmail.com"), text: config.supportEmail || "sedekahsubuhharamain@gmail.com" }), el("a", { class:"support-whatsapp", href: "https://wa.me/" + (config.supportWhatsApp || "6281234567890"), rel: "noopener noreferrer", target: "_blank", text: "WhatsApp dukungan" })])]);
     grid.appendChild(about); grid.appendChild(programs); grid.appendChild(legal); grid.appendChild(contact);
-    var bottom = el("div", { class: "container-shell footer-bottom" }, [el("span", { text: "  " + year + " " + (config.siteName || "SEDEKAH SUBUH HARAMAIN") + ". Semua hak dilindungi." }), el("span", { text: "Pembayaran aman diproses melalui layanan pembayaran" })]);
+    var bottom = el("div", { class: "container-shell footer-bottom" }, [el("span", { text: "© " + year + " " + (config.siteName || "SEDEKAH SUBUH HARAMAIN") + ". Semua hak dilindungi." }), el("span", { text: "Donasi disalurkan oleh amil Sedekah Subuh Haramain" })]);
     footer.appendChild(grid); footer.appendChild(bottom); mount.replaceWith(footer);
   }
   function initFaq() {
@@ -271,8 +275,8 @@
     return "";
   }
   function statusBadge(status) {
-    var labels = { paid: "Berhasil", pending: "Menunggu QRIS", awaiting_transfer:"Menunggu transfer", creating:"Diproses", gateway_error:"Gangguan gateway", cancelled:"Dibatalkan", failed: "Gagal", expired: "Kedaluwarsa", published: "Tayang", draft: "Draf", archived: "Diarsipkan" };
-    var classes = { paid: "badge-green", published: "badge-green", pending: "badge-amber", awaiting_transfer:"badge-amber", creating:"badge-amber", draft: "badge-gray", failed: "badge-red", expired: "badge-red", cancelled:"badge-red", gateway_error:"badge-red", archived: "badge-gray" };
+    var labels = { paid: "Berhasil", pending_payment: "Menunggu pembayaran", awaiting_review: "Menunggu review admin", awaiting_transfer: "Menunggu transfer", creating: "Diproses", rejected: "Ditolak", cancelled: "Dibatalkan", failed: "Gagal", expired: "Kedaluwarsa", published: "Tayang", draft: "Draf", archived: "Diarsipkan" };
+    var classes = { paid: "badge-green", published: "badge-green", pending_payment: "badge-amber", awaiting_review: "badge-amber", awaiting_transfer: "badge-amber", creating: "badge-amber", draft: "badge-gray", rejected: "badge-red", failed: "badge-red", expired: "badge-red", cancelled: "badge-red", archived: "badge-gray" };
     return el("span", { class: "badge " + (classes[status] || "badge-gray"), text: labels[status] || status || " " });
   }
   function applySettings(settings) {
