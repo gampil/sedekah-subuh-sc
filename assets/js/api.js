@@ -14,14 +14,32 @@
    * ========================================================================== */
   var config = window.SEDEKAH_CONFIG || {};
   var CACHE_KEY = "ssh_public_v6";
-  var GAS_URL = /^https:\/\/script\.google(user)?apis\.com\//i.test(String(config.gasUrl || "")) ? String(config.gasUrl) : "";
+  var GAS_URL = /^https:\/\/script\.google(user)?apis?\.com\//i.test(String(config.gasUrl || "")) ? String(config.gasUrl) : "";
   var RTDB_RAW = String(config.firebaseDatabaseUrl || "").trim();
   var RTDB_URL = RTDB_RAW.indexOf("https://") === 0 ? RTDB_RAW.replace(/\/+$/, "") : "";
+  /* Shared secret (WEB_APP_TOKEN di Script Properties). Opsional — kosongkan
+   * bila backend dijalankan tanpa secret. Bisa juga disisipkan lewat URL:
+   * /donasi/?proxySecret=xxxx  (disimpan sekali di sessionStorage). */
+  try {
+    var urlSecret = new URLSearchParams(location.search).get("proxySecret");
+    if (urlSecret) sessionStorage.setItem("ssh_proxy_secret", urlSecret);
+  } catch (e) {}
+  var SHARED_SECRET = String(config.proxySecret || "") || (function () { try { return sessionStorage.getItem("ssh_proxy_secret") || ""; } catch (e) { return ""; } })();
 
   function timeoutFetch(url, options, timeoutMs) {
     var controller = new AbortController();
     var timer = setTimeout(function () { controller.abort(); }, timeoutMs || config.requestTimeoutMs || 15000);
     return fetch(url, Object.assign({ cache: "no-store" }, options || {}, { signal: controller.signal }))
+      .then(function (response) {
+        // Apps Script menjawab redirect 302 -> googleapis.com yang TIDAK mengirim
+        // header CORS untuk XHR biasa. Ulangi permintaan dengan mode no-cors lalu
+        // baca isi respons dari cache HTTP browser memakai mode cors.
+        if (response.type === "opaque" || response.status === 0) {
+          return fetch(url, Object.assign({ cache: "force-cache" }, options || {}, { mode: "cors" }))
+            .catch(function () { throw new Error("Backend menolak permintaan (CORS). Pastikan Web App Apps Script dideploy dengan akses \"Anyone\"."); });
+        }
+        return response;
+      })
       .catch(function (error) {
         if (error && error.name === "AbortError") throw new Error("Koneksi lambat, silakan coba lagi.");
         throw error;
@@ -30,20 +48,25 @@
   }
 
   /* ---------- POST ke Apps Script ----------
-   * Content-Type text/plain menghindari preflight CORS; GAS mengikuti
-   * redirect 302 -> endpoint ContentService sehingga respons bisa dibaca. */
+   * Body dibungkus { content: "<json string>" } karena Apps Script Web App
+   * form-encoded TIDAK meneruskan JSON mentah ke doPost (e.postData.contents
+   * kosong). Dengan field `content`, parseParams_ membaca JSON dengan andal. */
   function gasPost(body, timeoutMs) {
     if (!GAS_URL) return Promise.reject(new Error("gasUrl belum diisi di assets/js/config.js."));
+    if (SHARED_SECRET && body && body.action !== "telegramWebhook") body.proxySecret = SHARED_SECRET;
+    var form = new URLSearchParams();
+    form.set("content", JSON.stringify(body));
     return timeoutFetch(GAS_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
+      body: form.toString(),
       redirect: "follow"
     }, timeoutMs || config.requestTimeoutMs || 15000).then(function (response) {
       return response.text().then(function (text) {
         var result = null;
         try { result = JSON.parse(text); } catch (e) {
-          if (/peningkatan trafik|Google Apps Script/i.test(text)) throw new Error("Server Google sedang sibuk, coba lagi sebentar…");
+          if (/peningkatan trafik|Google Apps Script|too many errors/i.test(text)) throw new Error("Server Google sedang sibuk, coba lagi sebentar…");
+          if (/<!doctype html|<html/i.test(text)) throw new Error("URL gasUrl bukan Web App Apps Script (masih halaman login Google). Deploy Web App dengan akses \"Anyone\" lalu salin URL /exec.");
           throw new Error("Respons layanan tidak valid.");
         }
         if (!result || result.ok !== true) throw new Error((result && result.error && result.error.message) || "Permintaan gagal diproses.");
@@ -56,7 +79,9 @@
     if (method === "GET") {
       if (!GAS_URL) return Promise.reject(new Error("gasUrl belum diisi di assets/js/config.js."));
       var url = GAS_URL + "?action=" + encodeURIComponent(action);
+      if (SHARED_SECRET) url += "&secret=" + encodeURIComponent(SHARED_SECRET);
       Object.keys(payload || {}).forEach(function (key) {
+        if (key === "proxySecret") return;
         if (payload[key] !== undefined && payload[key] !== null) url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(String(payload[key]));
       });
       return timeoutFetch(url, { method: "GET" }).then(function (r) { return r.json(); }).then(function (result) {
@@ -72,7 +97,9 @@
   /* ------------------------------ RTDB cepat ------------------------------ */
   function rtdbGet(path) {
     if (!RTDB_URL) return Promise.resolve(null);
-    return timeoutFetch(RTDB_URL + "/" + path + ".json", { method: "GET" }, 12000)
+    var sep = path.indexOf("?") >= 0 ? "&" : "?";
+    var qs = sep + "_t=" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+    return timeoutFetch(RTDB_URL + "/" + path + ".json" + qs, { method: "GET" }, 12000)
       .then(function (r) { if (!r.ok) throw new Error("RTDB read gagal"); return r.json(); })
       .catch(function () { return null; });
   }
@@ -134,7 +161,8 @@
         .sort(function (a, b) { return String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")); }).slice(0, 30),
       stats: {
         totalCollected: paid.reduce(function (s, d) { return s + Number(d.amount || 0); }, 0),
-        donorCount: paid.length,
+        /* Donatur = transaksi unik, bukan jumlah doa yang ditampilkan. */
+        donorCount: new Set(paid.map(function (d) { return String(d.id || ""); })).size,
         activePrograms: programs.length,
         pendingDonations: 0
       },

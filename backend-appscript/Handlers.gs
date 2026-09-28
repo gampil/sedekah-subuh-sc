@@ -83,7 +83,8 @@ var ENTITY_FIELDS_ = {
   packages: ['programId','name','description','price','imageUrl','active','sortOrder','createdAt']
 };
 
-function adminSaveEntity_(node, input, label) {
+/* Simpan entitas TANPA memuat ulang seluruh dashboard (hemat ~1-3 detik). */
+function saveEntityCore_(node, input, label) {
   if (!input || typeof input !== 'object') throw new Error('Data ' + label + ' kosong.');
   var current = toList_(rtdbRead_(node) || {});
   var id = sanitizeId_(input.id) || generateKey_();
@@ -116,7 +117,12 @@ function adminSaveEntity_(node, input, label) {
 
   rtdbWrite_(node + '/' + id, Object.assign({}, findInList_(current, id) || {}, clean, { id: id }));
   invalidateCache_();
-  return adminDashboard_();
+  return id;
+}
+
+function adminSaveEntity_(node, input, label) {
+  var id = saveEntityCore_(node, input, label);
+  return { ok: true, id: id };
 }
 
 function adminDeleteEntity_(node, id) {
@@ -126,7 +132,7 @@ function adminDeleteEntity_(node, id) {
     // bersihkan juga updates/gallery terkait? biarkan sebagai arsip — cukup feed
   }
   invalidateCache_();
-  return adminDashboard_();
+  return { ok: true, id: id };
 }
 
 function adminSaveSettings_(input) {
@@ -142,25 +148,33 @@ function adminSaveSettings_(input) {
   if (next.logoUrl) next.logoUrl = safeImageUrl_(next.logoUrl);
   rtdbWrite_('settings', next);
   invalidateCache_();
-  return adminDashboard_();
+  return { ok: true };
 }
 
 /* ============================ UPLOAD GAMBAR IMGBB ========================== */
 function adminUploadImage_(dataUrl, name) {
   var up = uploadImageToImgbb_(dataUrl, name || ('admin-' + generateKey_()));
-  invalidateCache_();
   return { url: up.url, deleteUrl: up.deleteUrl };
 }
 
 /* ======================= KEPUTUSAN DONASI & APPROVAL ======================= */
 var DONATION_STATUSES_ = ['pending_payment', 'awaiting_review', 'paid', 'rejected', 'cancelled'];
 
-function adminSetDonationStatus_(id, status) {
+/** Status lama ala gateway dipetakan ke skema v4 agar kompatibel. */
+function normalizeDonationStatus_(status) {
+  var map = {
+    pending: 'pending_payment', awaiting_transfer: 'pending_payment', creating: 'pending_payment',
+    gateway_error: 'rejected', expired: 'cancelled'
+  };
+  return map[status] || status;
+}
+
+function setDonationStatus_(id, status) {
   if (DONATION_STATUSES_.indexOf(status) < 0) throw new Error('Status tidak dikenal.');
   var d = rtdbRead_('donations/' + encodeURIComponent(id));
   if (!d) throw new Error('Transaksi tidak ditemukan.');
   var prev = d.status;
-  if (status === prev) return adminDashboard_();
+  if (status === prev) return { ok: true, id: id, status: status, unchanged: true };
 
   var patch = { status: status, updatedAt: new Date().toISOString() };
   if (status === 'paid') {
@@ -173,13 +187,19 @@ function adminSetDonationStatus_(id, status) {
 
   var fresh = rtdbRead_('donations/' + encodeURIComponent(id));
   afterStatusChange_(fresh, prev);
-  return adminDashboard_();
+  return { ok: true, id: id, status: status };
+}
+
+function adminSetDonationStatus_(id, status) {
+  var result = setDonationStatus_(id, normalizeDonationStatus_(String(status || '')));
+  result.dashboard = adminDashboard_();
+  return result;
 }
 
 function adminReviewProof_(id, decision) {
   var d = rtdbRead_('donations/' + encodeURIComponent(id));
   if (!d) throw new Error('Transaksi tidak ditemukan.');
-  if (decision === 'approve') return adminSetDonationStatus_(id, 'paid');
+  if (decision === 'approve') return setDonationStatus_(id, 'paid');
   if (decision === 'reject') {
     rtdbUpdate_('donations/' + encodeURIComponent(id), {
       status: 'rejected', proofStatus: 'rejected', updatedAt: new Date().toISOString()
@@ -188,7 +208,7 @@ function adminReviewProof_(id, decision) {
     sendMailSafe_(fresh.email, 'Bukti transfer ditolak — ' + fresh.id, renderProofRejectedEmail_(fresh));
     notifyTelegramSimple_('❌ Bukti ' + fresh.id + ' DITOLAK via web admin.');
     invalidateCache_();
-    return adminDashboard_();
+    return { ok: true, id: id, status: 'rejected' };
   }
   throw new Error('Keputusan tidak valid.');
 }
