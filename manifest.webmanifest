@@ -1,0 +1,10 @@
+{
+  "name": "SEDEKAH SUBUH HARAMAIN — Sedekah Online",
+  "short_name": "SEDEKAH SUBUH HARAMAIN",
+  "description": "Platform sedekah online aman dan transparan.",
+  "lang": "id-ID",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7"
+}

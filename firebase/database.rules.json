@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "settings": {".read": true},
+    "programs": {".read": true, ".indexOn": ["status", "slug", "sortOrder"]},
+    "updates": {".read": true, ".indexOn": ["status", "programId", "publishedAt"]},
+    "gallery": {".read": true, ".indexOn": ["status", "sortOrder", "programId"]},
+    "packages": {".read": true, ".indexOn": ["active", "sortOrder", "programId"]},
+    "banks": {".read": true, ".indexOn": ["active", "sortOrder"]},
+    "donations": {".indexOn": ["status", "createdAt", "paidAt", "programId"]}
+  }
+}

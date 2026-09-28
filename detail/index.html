@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Detail Transaksi — SEDEKAH SUBUH HARAMAIN</title>
+  <meta name="description" content="Lihat detail dan status pembayaran sedekah Anda.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="theme-color" content="#f0f9ff">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:title" content="Detail Transaksi — SEDEKAH SUBUH HARAMAIN">
+  <meta property="og:description" content="Lihat detail dan status pembayaran sedekah Anda.">
+  <meta property="og:url" content="/detail/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Detail Transaksi — SEDEKAH SUBUH HARAMAIN">
+  <meta name="twitter:description" content="Lihat detail pembayaran sedekah.">
+  <link rel="canonical" href="https://sedekahsubuhharamain.com/detail/">
+  <link rel="icon" type="image/png" href="/favicon.png?v=20260920d">
+  <link rel="apple-touch-icon" href="/assets/images/touch-icon.png">
+  <link rel="stylesheet" href="/assets/css/tailwind.css?v=20260920d">
+  <link rel="stylesheet" href="/assets/css/v3.css?v=20260920d">
+  <link rel="stylesheet" href="/assets/css/clean.css?v=20260920d">
+  <style>
+    .status-wrap{max-width:48rem;padding:2.8rem 0 4.5rem}
+    .status-wrap .page-intro{text-align:center;margin:0 0 1.25rem}
+    .status-wrap .page-intro p{margin:0 0 .3rem;color:#0284c7;font-size:.76rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .status-wrap .page-intro h1{margin:0;color:#0f172a;font-size:clamp(1.35rem,3.6vw,1.8rem)}
+    .status-wrap .status-card.payment-detail{padding:0;overflow:hidden;text-align:left;border:1px solid #dce7f0;border-radius:1.3rem}
+    .payment-detail .detail-top{text-align:center;padding:2rem 1.8rem 1.5rem;background:linear-gradient(180deg,#f0f9ff 0%,#fff 100%)}
+    .payment-detail .status-icon{margin-bottom:.8rem}
+    .payment-detail #status-badge{margin-bottom:.75rem}
+    .payment-detail .detail-top h2{font-size:clamp(1.3rem,3vw,1.7rem);line-height:1.3;margin:0 0 .45rem;color:#0f172a}
+    .payment-detail .detail-top p{max-width:32rem;margin:0 auto;color:#526277;font-size:.89rem;line-height:1.65}
+    .payment-detail .detail-body{padding:0 1.8rem 1.8rem}
+    .payment-detail .amount-panel{padding:1.35rem 1.5rem;border:1px solid #d7e9f7;border-radius:1rem;background:#f8fcff;text-align:center}
+    .payment-detail .field-caption{display:block;color:#64748b;font-size:.75rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+    .payment-detail .amount-panel strong{display:block;margin:.35rem 0 .6rem;color:#075985;font-size:clamp(1.8rem,5vw,2.55rem);line-height:1.15;overflow-wrap:anywhere}
+    .payment-detail .method-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .7rem;border-radius:999px;background:#e0f2fe;color:#075985;font-size:.75rem;font-weight:800}
+    .payment-detail .detail-meta{display:grid;gap:0;margin:1.1rem 0 1.4rem;padding:0;border-bottom:1px solid #e2e8f0}
+    .payment-detail .detail-meta .summary-row{align-items:start;border-bottom:1px solid #eef2f7;gap:1rem}
+    .payment-detail .detail-meta .summary-row:last-child{border-bottom:0}
+    .payment-detail .detail-meta strong{text-align:right;overflow-wrap:anywhere;max-width:70%}
+    .payment-detail .action-panel{border:1px solid #d7e9f7;border-radius:1rem;padding:1.25rem;background:#fff}
+    .payment-detail .action-panel h3{font-size:1rem;margin:0 0 .35rem;color:#0f172a}
+    .payment-detail .action-panel p{font-size:.86rem;line-height:1.6;color:#526277;margin:0 0 1rem}
+    .payment-detail .bank-grid{display:grid;gap:.85rem;margin:1rem 0}
+    .payment-detail .bank-grid .field-caption{margin-bottom:.3rem}
+    .payment-detail .bank-grid strong{font-size:.95rem;color:#0f172a;overflow-wrap:anywhere}
+    .payment-detail .account-line{display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .payment-detail .account-line strong{font-size:1.24rem;letter-spacing:.015em}
+    .payment-detail #bank-instructions{margin:0 0 1rem;color:#526277;font-size:.82rem;line-height:1.6;white-space:pre-line}
+    .payment-detail .action-panel .primary-action{display:flex;width:100%;justify-content:center;min-height:3rem}
+    .payment-detail .qris-image{display:block;max-width:min(100%,320px);width:100%;height:auto;aspect-ratio:1;object-fit:contain;margin:1rem auto;border:1px solid #d7e9f7;border-radius:.9rem;background:#fff;padding:.65rem}
+    .payment-detail .transfer-proof{margin:1rem 0 0}
+    .payment-detail .transaction-panel{margin:1.35rem 0 0;padding:1rem 1.1rem;border:1px solid #e2e8f0;border-radius:.9rem;background:#f8fafc}
+    .payment-detail .transaction-panel .field-caption{margin-bottom:.4rem}
+    .payment-detail .transaction-line{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+    .payment-detail .transaction-line strong{color:#0f172a;font-size:.89rem;overflow-wrap:anywhere;min-width:0}
+    .payment-detail .mini-copy{min-height:2.25rem;padding:.45rem .7rem;font-size:.78rem;flex:none}
+    .payment-detail .footer-actions{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-top:1.35rem;padding-top:1.3rem;border-top:1px solid #e2e8f0}
+    .payment-detail .footer-actions .btn{font-size:.82rem;box-shadow:none}
+    .payment-detail :where(button,a):focus-visible{outline:3px solid #38bdf8;outline-offset:2px}
+    @media(max-width:640px){
+      .status-wrap{padding:1.6rem 0 3rem}
+      .payment-detail .detail-top{padding:1.6rem 1rem 1.2rem}
+      .payment-detail .detail-body{padding:0 1rem 1.25rem}
+      .payment-detail .amount-panel{padding:1.15rem .8rem}
+      .payment-detail .action-panel{padding:1rem}
+      .payment-detail .detail-meta strong{max-width:62%}
+      .payment-detail .footer-actions .btn{width:100%}
+    }
+  </style>
+  <script defer src="/assets/js/config.js?v=20260920d"></script>
+  <script defer src="/assets/js/api.js?v=20260921g"></script>
+  <script defer src="/assets/js/ui.js?v=20260920d"></script>
+  <script defer src="/assets/js/transaction.js?v=20260921c"></script>
+  <script defer src="/assets/js/detail.js?v=20260921f"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten utama</a>
+  <div data-site-header></div>
+  <main id="main">
+    <div class="container-shell status-wrap">
+      <div class="page-intro"><p>Sedekah Subuh Haramain</p><h1>Detail transaksi</h1></div>
+      <div id="status-error" class="notice notice-warning hidden" role="alert"></div>
+      <div id="status-loading" class="admin-loading hidden" role="status"><span>Memuat detail pembayaran…</span></div>
+
+      <section id="status-result" class="surface status-card payment-detail hidden" aria-live="polite" aria-labelledby="status-title">
+        <div class="detail-top">
+          <span class="field-caption">Langkah pembayaran</span>
+          <h2 id="status-title">Menyiapkan transaksi</h2>
+          <p id="status-message"></p>
+        </div>
+        <div class="detail-body">
+          <div class="amount-panel">
+            <span class="field-caption">Total pembayaran</span>
+            <strong id="status-amount">—</strong>
+            <span id="payment-method-label" class="method-chip">Metode pembayaran</span>
+          </div>
+          <div class="detail-meta">
+            <div class="summary-row"><span>Program sedekah</span><strong id="status-program">—</strong></div>
+            <div class="summary-row"><span>Dibuat pada</span><strong id="status-date">—</strong></div>
+          </div>
+
+          <div id="qris-action" class="action-panel hidden">
+            <h3>Bayar menggunakan QRIS</h3>
+            <p>Pindai QRIS menggunakan aplikasi pembayaran Anda.</p>
+            <img id="qris-image" class="qris-image hidden" alt="Kode QRIS transaksi" loading="eager" referrerpolicy="no-referrer">
+            <a id="status-pay-link" class="btn btn-primary primary-action hidden" href="#" rel="noopener noreferrer">Bayar dengan QRIS</a>
+          </div>
+
+          <div id="manual-bank-detail" class="action-panel hidden">
+            <h3>Transfer ke rekening tujuan</h3>
+            <p>Transfer sesuai nominal di atas, lalu kirim bukti pembayaran untuk diperiksa admin.</p>
+            <div class="bank-grid">
+              <div><span class="field-caption">Bank</span><strong id="bank-name">—</strong></div>
+              <div><span class="field-caption">Nomor rekening</span><div class="account-line"><strong id="bank-number">—</strong><button id="bank-copy" class="btn btn-secondary mini-copy" type="button">Salin rekening</button></div></div>
+              <div><span class="field-caption">Atas nama</span><strong id="bank-holder">—</strong></div>
+            </div>
+            <p id="bank-instructions" class="hidden"></p>
+            <button id="confirm-transfer" class="btn btn-primary primary-action hidden" type="button" aria-controls="transfer-proof" aria-expanded="false">Saya sudah transfer</button>
+            <p id="proof-received" class="notice notice-success hidden" role="status">Bukti transfer sudah diterima. Admin akan memeriksanya.</p>
+          </div>
+
+          <div id="transfer-proof" class="transfer-proof hidden">
+            <h3>Konfirmasi transfer</h3>
+            <p>Kirim bukti agar admin dapat memeriksa pembayaran. Status berhasil ditetapkan setelah verifikasi.</p>
+            <form id="transfer-proof-form">
+              <label class="field-label" for="proof-file">Bukti transfer (PNG, JPG, WebP; maks. 2 MB)</label>
+              <input id="proof-file" class="field" type="file" accept="image/png,image/jpeg,image/webp" required>
+              <button id="proof-submit" class="btn btn-primary" type="submit">Kirim bukti transfer</button>
+              <p id="proof-progress" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="transaction-panel">
+            <span class="field-caption">ID transaksi</span>
+            <div class="transaction-line"><strong id="status-id">—</strong><button id="status-copy-id" class="btn btn-secondary mini-copy" type="button">Salin ID</button></div>
+          </div>
+          <div class="footer-actions">
+            <button id="status-refresh" class="btn btn-secondary" type="button">Muat ulang detail</button>
+            <a id="check-status-link" class="btn btn-secondary" href="/status/">Cek status pembayaran</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <div data-site-footer></div>
+</body>
+</html>

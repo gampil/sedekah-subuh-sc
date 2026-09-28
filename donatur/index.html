@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Donatur & Doa — SEDEKAH SUBUH HARAMAIN</title>
+    <meta
+      name="description"
+      content="Daftar donasi terkonfirmasi, doa donatur, dan grafik tren donasi."
+    />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://sedekahsubuhharamain.com/donatur/" />
+    <link rel="icon" type="image/png" href="/favicon.png?v=20260920d"><link rel="apple-touch-icon" href="/assets/images/touch-icon.png"><link rel="stylesheet" href="/assets/css/tailwind.css?v=20260920d" />
+    <link rel="stylesheet" href="/assets/css/v3.css?v=20260920d"><link rel="stylesheet" href="/assets/css/clean.css?v=20260920d"><script defer src="/assets/js/config.js?v=20260920d"></script>
+    <script defer src="/assets/js/api.js?v=20260920d"></script>
+    <script defer src="/assets/js/ui.js?v=20260920d"></script>
+    <script defer src="/assets/js/line-chart.js?v=20260920d"></script><script defer src="/assets/js/donors.js?v=20260920d"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Lewati ke konten</a>
+    <div data-site-header></div>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container-shell">
+          <p class="kicker">Transparansi</p>
+          <h1>Donatur dan doa baik</h1>
+          <p>
+            Hanya transaksi terkonfirmasi yang ditampilkan. Data kontak tetap
+            dirahasiakan.
+          </p>
+        </div>
+      </section>
+      <section class="section-sm">
+        <div class="container-shell">
+          <section class="surface panel">
+            <div class="section-head">
+              <div>
+                <p class="kicker">30 hari</p>
+                <h2>Grafik tren donasi</h2>
+              </div>
+            </div>
+            <div
+              id="public-trend-chart"
+              class="trend-chart"
+              role="img"
+              aria-label="Grafik tren donasi 30 hari"
+            ></div>
+          </section>
+          <div style="height: 1.2rem"></div>
+          <div id="donor-list" class="public-grid"></div>
+          <div style="text-align: center; margin-top: 1.5rem">
+            <button
+              id="load-more-donors"
+              class="btn btn-secondary hidden"
+              type="button"
+            >
+              Muat lebih banyak
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div data-site-footer></div>
+  </body>
+</html>

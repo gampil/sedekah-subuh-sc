@@ -1,0 +1,493 @@
+/* ==========================================================================
+   SEDEKAH SUBUH HARAMAIN - CLEAN & PROFESSIONAL UI OVERHAUL
+   ========================================================================== */
+
+/* 1. Base Setup & Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --brand-50:  #f0f9ff;
+  --brand-100: #e0f2fe;
+  --brand-200: #bae6fd;
+  --brand-300: #7dd3fc;
+  --brand-400: #38bdf8;
+  --brand-500: #0ea5e9;
+  --brand-600: #0284c7; /* Primary Blue */
+  --brand-700: #0369a1;
+  --brand-800: #075985;
+  --brand-900: #0c4a6e;
+  
+  --ink:    #111827; /* Darker, crisper text */
+  --muted:  #6b7280;
+  --line:   #e5e7eb;
+  --surface:#ffffff;
+  --bg:     #f9fafb; /* Cleaner, neutral background */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px -2px rgba(2, 132, 199, 0.08), 0 4px 16px -4px rgba(2, 132, 199, 0.04);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 2. Global Surfaces & Focus States */
+:where(.surface, .panel, .program-card, .gallery-card, .package-card, .donor-card, .detail-content, .detail-heading-card, .donation-card) {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 3. Professional Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px; /* Slightly softer corners than standard */
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--brand-600) !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-700) !important;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-secondary, .campaign-load-more {
+  background: #ffffff !important;
+  color: var(--brand-700) !important;
+  border-color: var(--brand-200) !important;
+}
+
+.btn-secondary:hover:not(:disabled), .campaign-load-more:hover:not(:disabled) {
+  background: var(--brand-50) !important;
+  border-color: var(--brand-300) !important;
+}
+
+.btn-soft, .chip.active, .amount-choice.active {
+  background: var(--brand-50) !important;
+  color: var(--brand-800) !important;
+  border-color: var(--brand-300) !important;
+  font-weight: 700;
+}
+
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(2, 132, 199, 0.4);
+  outline-offset: 2px;
+}
+
+.progress-fill { background: var(--brand-600) !important; border-radius: 999px; }
+.progress-track { background: var(--line); border-radius: 999px; overflow: hidden; }
+
+/* 4. Media & Cards */
+img { max-width: 100%; height: auto; border-radius: inherit; }
+.hero-visual, .detail-media, .program-media, .gallery-card, .package-card, .image-upload-preview, .upload-preview {
+  min-width: 0; overflow: hidden;
+}
+
+.program-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.program-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.program-media { height: 220px; border-bottom: 1px solid var(--line); }
+.program-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hero-image { display: block; width: 100%; height: clamp(250px, 36vw, 480px); max-height: 480px; object-fit: cover; }
+.campaign-detail .detail-media { height: clamp(230px, 32vw, 410px); border-radius: 16px; border: 1px solid var(--line); }
+.campaign-detail .detail-media img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-card img, .package-card img { display: block; width: 100%; height: 210px; object-fit: cover; }
+
+/* 5. Campaign Detail View */
+.campaign-detail { background: var(--bg); }
+.campaign-detail .detail-grid { align-items: start; gap: 2rem; margin-top: 1rem; }
+.campaign-detail .detail-main { display: grid; gap: 1.5rem; min-width: 0; }
+
+.campaign-detail .detail-heading-card {
+  padding: 1.5rem;
+}
+.campaign-detail #detail-title {
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+.campaign-detail .detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.campaign-detail .detail-meta svg {
+  margin-right: 0.375rem;
+  color: var(--brand-500);
+  vertical-align: text-bottom;
+}
+
+/* Tabs */
+.campaign-detail .detail-content { padding: 0; }
+.detail-tabs {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 16px 16px 0 0;
+  scrollbar-width: none; /* Hide scrollbar */
+}
+.detail-tabs::-webkit-scrollbar { display: none; }
+
+.detail-tab {
+  padding: 1rem 0.5rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.detail-tab:hover { color: var(--brand-700); }
+.detail-tab.active {
+  border-color: var(--brand-600);
+  color: var(--brand-700);
+}
+
+.detail-tab-panel {
+  min-height: 250px;
+  padding: 2rem 1.5rem;
+}
+.detail-tab-panel h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.detail-panel-kicker {
+  color: var(--brand-600) !important;
+  font-size: 0.75rem !important;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Sidebar / Donation Card */
+.campaign-detail .donation-card {
+  position: sticky;
+  top: 6rem;
+  padding: 1.5rem;
+}
+
+/* ==========================================================================
+   6. KARTU DOA DONATUR (Responsif Mobile, Menonjol & Tanpa Garis)
+   ========================================================================== */
+.campaign-donor-list { 
+  display: grid; 
+  gap: 1.25rem; 
+}
+
+.campaign-donor-card, .donor-card {
+  position: relative;
+  padding: 1.5rem;
+  border: 1px solid var(--brand-200); /* Garis luar sedikit lebih tegas */
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffff 50%, var(--brand-50) 100%);
+  box-shadow: 0 4px 15px -3px rgba(2, 132, 199, 0.08);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.campaign-donor-card:hover, .donor-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Ornamen Watermark Tanda Kutip (Pemanis Latar) */
+.campaign-donor-card::after, .donor-card::after {
+  content: "”";
+  position: absolute;
+  top: -1.5rem;
+  right: 1rem;
+  font-size: 10rem;
+  font-family: Georgia, serif;
+  color: var(--brand-200);
+  opacity: 0.25;
+  z-index: -1;
+  line-height: 1;
+  user-select: none;
+}
+
+/* Layout Header (Grid: Avatar | Nama | Nominal) */
+.campaign-donor-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.donor-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  /* Gradient warna biru pekat agar avatar sangat menonjol */
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700)); 
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.donor-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.donor-identity strong {
+  font-size: 1.1rem;
+  color: var(--ink);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.donor-identity small {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.donor-amount {
+  background: var(--brand-100);
+  color: var(--brand-800);
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--brand-300);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.1);
+}
+
+/* Teks Doa (Fokus Utama, Garis Dihapus) */
+.campaign-donor-card .donor-prayer, .donor-card .donor-prayer {
+  margin: 0 0 1.25rem 0;
+  padding: 0;
+  background: transparent;
+  border: none !important; /* Menghapus paksa segala garis warna di sisi teks */
+  color: #1e293b; /* Warna teks dipertajam */
+  font-size: 1.05rem;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* Tombol Aamiin */
+.aamiin-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--brand-300);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--brand-700);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.aamiin-button:hover:not(:disabled) {
+  background: var(--brand-600);
+  color: #ffffff;
+  border-color: var(--brand-600);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+}
+
+.aamiin-count {
+  background: var(--brand-100);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+  color: var(--brand-800);
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+.aamiin-button:hover:not(:disabled) .aamiin-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Penyesuaian Khusus Mobile (< 520px) agar tidak berdesakan */
+@media (max-width: 520px) {
+  .campaign-donor-card, .donor-card {
+    padding: 1.25rem;
+  }
+  
+  .campaign-donor-head {
+    grid-template-columns: auto 1fr; /* Hanya 2 kolom: Avatar | Nama */
+    gap: 0.85rem;
+  }
+  
+  .donor-amount {
+    grid-column: 1 / -1; /* Nominal donasi turun mengambil lebar penuh */
+    justify-self: start;
+    margin-top: -0.5rem; 
+    margin-left: 4.35rem; /* Sejajar dengan teks nama (Lebar avatar + gap) */
+  }
+}
+
+/* 7. Utilities & Loaders */
+.list-more { margin: 1.5rem auto 0; }
+.hidden.list-more { display: none !important; }
+
+.btn.is-loading, .aamiin-button.is-loading {
+  position: relative;
+  cursor: wait;
+  opacity: 0.75;
+  pointer-events: none;
+}
+.btn.is-loading::after, .campaign-load-more.is-loading::after {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: admin-spin 0.75s linear infinite;
+}
+
+@keyframes admin-spin { 100% { transform: rotate(360deg); } }
+
+/* 8. Mobile Responsiveness */
+@media (max-width: 900px) {
+  .campaign-detail .detail-grid { grid-template-columns: 1fr; }
+  .campaign-detail .donation-card { position: static; margin-top: 1.5rem; }
+}
+
+@media (max-width: 640px) {
+  .hero-image { height: 280px; }
+  .program-media { height: 180px; }
+  .campaign-detail .detail-media { height: 240px; }
+  .campaign-detail .detail-heading-card { padding: 1.25rem; }
+  .campaign-detail #detail-title { font-size: 1.5rem; }
+  .detail-tab-panel { padding: 1.5rem 1.25rem; }
+  
+  .campaign-donor-head { flex-wrap: wrap; }
+  .donor-amount { margin-left: auto; }
+}
+
+@media(prefers-reduced-motion: reduce) {
+  .btn, .campaign-donor-card, .aamiin-button { transition: none; transform: none !important; }
+}
+
+
+
+/* ==========================================================================
+   9. SVG LINE CHART (Dikembalikan & Dirapikan)
+   ========================================================================== */
+.trend-chart.interactive-chart { 
+  display: block; height: auto; min-height: 0; padding: 0; overflow: visible; min-width: 0; 
+}
+.chart-toolbar { 
+  display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; 
+}
+.chart-range {
+  border: 1px solid var(--brand-200);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--brand-700);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.chart-range.active, .chart-range:hover {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+  color: #ffffff;
+}
+.chart-plot { position: relative; min-width: 0; }
+.line-chart-svg { 
+  display: block; width: 100%; height: auto; max-height: 250px; overflow: visible; touch-action: pan-y; 
+}
+.chart-grid { stroke: var(--line); stroke-width: 1; }
+.chart-axis { fill: var(--muted); font-size: 12px; font-family: inherit; }
+.chart-area { fill: var(--brand-100); opacity: 0.65; }
+.chart-line { 
+  fill: none; stroke: var(--brand-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; 
+}
+.chart-guide { stroke: var(--brand-600); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.chart-active-dot { fill: #ffffff; stroke: var(--brand-600); stroke-width: 3; }
+.chart-hit { cursor: crosshair; }
+
+.chart-tooltip {
+  position: absolute;
+  top: 3px;
+  transform: translateX(-50%);
+  z-index: 2;
+  max-width: 90%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.chart-detail { 
+  min-height: 1.3rem; margin-top: 0.5rem; color: var(--muted); font-size: 0.75rem; text-align: center; 
+}

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /donasi/
+Disallow: /status/
+Disallow: /api/
+
+Sitemap: https://sedekahsubuhharamain.com/sitemap.xml

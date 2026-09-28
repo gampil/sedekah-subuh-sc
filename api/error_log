@@ -1,0 +1,27 @@
+[21-Sep-2026 05:06:44 UTC] GAS proxy error: HTTP 302 Operation timed out after 26085 milliseconds with 0 bytes received
+[21-Sep-2026 05:58:38 UTC] GAS proxy error: HTTP 404 
+[21-Sep-2026 06:51:48 UTC] GAS proxy error: HTTP 404 
+[21-Sep-2026 06:53:56 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 07:04:14 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 07:05:14 UTC] GAS proxy error: HTTP 0 Operation timed out after 60000 milliseconds with 0 bytes received
+[22-Sep-2026 07:05:18 UTC] GAS proxy error: HTTP 302 Maximum (3) redirects followed
+[22-Sep-2026 21:43:50 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 21:48:56 UTC] GAS proxy error: HTTP 302 Maximum (3) redirects followed
+[22-Sep-2026 22:11:37 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 22:20:27 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 22:20:35 UTC] GAS proxy error: HTTP 404 
+[22-Sep-2026 22:20:51 UTC] GAS proxy error: HTTP 302 Operation timed out after 12002 milliseconds with 0 bytes received
+[22-Sep-2026 22:20:53 UTC] GAS proxy error: HTTP 302 Operation timed out after 22016 milliseconds with 0 bytes received
+[22-Sep-2026 22:21:20 UTC] GAS proxy error: HTTP 302 Operation timed out after 30924 milliseconds with 0 bytes received
+[23-Sep-2026 06:49:20 UTC] GAS proxy error: HTTP 404 
+[23-Sep-2026 07:13:48 UTC] GAS proxy error: HTTP 404 
+[24-Sep-2026 21:11:16 UTC] GAS proxy error: HTTP 404 
+[24-Sep-2026 21:11:16 UTC] GAS proxy error: HTTP 404 
+[25-Sep-2026 14:53:36 UTC] GAS proxy error: HTTP 404 
+[25-Sep-2026 14:54:06 UTC] GAS proxy error: HTTP 404 
+[25-Sep-2026 15:20:54 UTC] GAS proxy error: HTTP 404 
+[28-Sep-2026 01:41:36 UTC] GAS proxy error: HTTP 404 
+[28-Sep-2026 01:41:37 UTC] GAS proxy error: HTTP 404 
+[28-Sep-2026 01:42:11 UTC] GAS proxy error: HTTP 302 Maximum (3) redirects followed
+[28-Sep-2026 01:42:19 UTC] GAS proxy error: HTTP 302 Maximum (3) redirects followed
+[28-Sep-2026 01:42:57 UTC] GAS proxy error: HTTP 302 Maximum (3) redirects followed

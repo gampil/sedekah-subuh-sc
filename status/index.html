@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cek Status Donasi — SEDEKAH SUBUH HARAMAIN</title>
+  <meta name="description" content="Periksa perkembangan status pembayaran sedekah menggunakan ID transaksi.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="theme-color" content="#f0f9ff">
+  <link rel="canonical" href="https://sedekahsubuhharamain.com/status/">
+  <link rel="icon" type="image/png" href="/favicon.png?v=20260920d">
+  <link rel="apple-touch-icon" href="/assets/images/touch-icon.png">
+  <link rel="stylesheet" href="/assets/css/tailwind.css?v=20260920d">
+  <link rel="stylesheet" href="/assets/css/v3.css?v=20260920d">
+  <link rel="stylesheet" href="/assets/css/clean.css?v=20260920d">
+  <style>
+    .status-wrap{max-width:43rem;padding:3rem 0 4rem}
+    .status-card.check-card{border:1px solid #dce7f0;border-radius:1.2rem;padding:clamp(1.2rem,4vw,2.2rem)}
+    .check-card .status-icon{margin-bottom:.85rem}
+    .check-card h1{font-size:clamp(1.45rem,3vw,1.9rem);margin:.2rem 0 .45rem}
+    .check-card>p{max-width:33rem;margin:0 auto 1.5rem;color:#526277;line-height:1.6;font-size:.9rem}
+    .check-card #status-form{margin-top:1rem}
+    .check-card .field-label{display:block;margin:0 0 .45rem}
+    .check-card #status-badge{margin-bottom:.75rem}
+    .check-card .status-detail{margin:1.4rem 0 1.2rem}
+    .check-card .status-detail .summary-row{gap:.8rem}
+    .check-card .status-detail strong{max-width:70%;overflow-wrap:anywhere;text-align:right}
+    .check-card .status-actions{display:flex;gap:.55rem;flex-wrap:wrap}
+    .check-card .status-actions .btn{min-height:2.7rem}
+    .status-wrap #status-error{margin:0 0 1rem;line-height:1.55}
+    @media(max-width:520px){.check-card .status-actions .btn{width:100%}}
+  </style>
+  <script defer src="/assets/js/config.js?v=20260920d"></script>
+  <script defer src="/assets/js/api.js?v=20260921g"></script>
+  <script defer src="/assets/js/ui.js?v=20260920d"></script>
+  <script defer src="/assets/js/transaction.js?v=20260921c"></script>
+  <script defer src="/assets/js/status.js?v=20260921f"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten utama</a>
+  <div data-site-header></div>
+  <main id="main"><div class="container-shell status-wrap">
+    <div id="status-error" class="notice notice-warning hidden" role="alert"></div>
+    <section id="status-search" class="surface status-card check-card">
+      <div class="status-icon" aria-hidden="true"><svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div>
+      <h1>Cek status donasi</h1>
+      <p>Masukkan ID transaksi untuk melihat apakah pembayaran Anda masih menunggu atau sudah terkonfirmasi.</p>
+      <form id="status-form">
+        <div class="form-group" style="text-align:left"><label class="field-label" for="transaction-id">ID transaksi</label><input id="transaction-id" class="field" type="text" maxlength="80" autocomplete="off" placeholder="DNT-..." required></div>
+        <button class="btn btn-primary btn-lg" type="submit" style="width:100%">Periksa status</button>
+      </form>
+    </section>
+    <div id="status-loading" class="admin-loading hidden" role="status">Memeriksa status…</div>
+    <section id="status-result" class="surface status-card check-card hidden" aria-live="polite" aria-labelledby="status-title">
+      <div id="status-icon" class="status-icon" aria-hidden="true"></div>
+      <div id="status-badge"></div>
+      <h1 id="status-title">Status pembayaran</h1>
+      <p id="status-message"></p>
+      <div class="status-detail">
+        <div class="summary-row"><span>ID transaksi</span><strong id="status-id">—</strong></div>
+        <div class="summary-row"><span>Program</span><strong id="status-program">—</strong></div>
+        <div class="summary-row"><span>Nominal</span><strong id="status-amount">—</strong></div>
+      </div>
+      <div class="status-actions">
+        <a id="detail-link" class="btn btn-primary hidden" href="/detail/">Lihat detail pembayaran</a>
+        <button id="status-refresh" class="btn btn-secondary" type="button">Perbarui status</button>
+        <button id="status-new-search" class="btn btn-secondary" type="button">Cek ID lain</button>
+      </div>
+    </section>
+  </div></main>
+  <div data-site-footer></div>
+</body>
+</html>

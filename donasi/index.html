@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Formulir Sedekah — SEDEKAH SUBUH HARAMAIN</title>
+    <meta
+      name="description"
+      content="Sedekah melalui QRIS gateway atau transfer rekening manual."
+    />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href="https://sedekahsubuhharamain.com/donasi/" />
+    <link rel="icon" type="image/png" href="/favicon.png?v=20260920d"><link rel="apple-touch-icon" href="/assets/images/touch-icon.png"><link rel="stylesheet" href="/assets/css/tailwind.css?v=20260920d" />
+    <link rel="stylesheet" href="/assets/css/v3.css?v=20260920d"><link rel="stylesheet" href="/assets/css/clean.css?v=20260920d"><script defer src="/assets/js/config.js?v=20260920d"></script>
+    <style>
+      .nominal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin:.55rem 0 1rem}
+      .nominal-card{min-height:3.5rem;padding:.7rem .4rem;border:1.5px solid #dce7f0;border-radius:.85rem;background:#fff;color:#183047;font:inherit;font-weight:800;cursor:pointer;transition:border-color .18s,background .18s,box-shadow .18s}
+      .nominal-card:hover,.nominal-card:focus-visible{border-color:#0284c7;outline:2px solid transparent;box-shadow:0 0 0 3px #bae6fd}
+      .nominal-card[aria-pressed="true"]{border-color:#0284c7;background:#eff9ff;color:#075985;box-shadow:0 0 0 2px #bae6fd}
+      @media(max-width:480px){.nominal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    </style>
+    <script defer src="/assets/js/api.js?v=20260921g"></script>
+    <script defer src="/assets/js/ui.js?v=20260920d"></script>
+    <script defer src="/assets/js/transaction.js?v=20260921c"></script>
+    <script defer src="/assets/js/donasi.js?v=20260921e"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Lewati ke konten</a>
+    <div data-site-header></div>
+    <main id="main">
+      <section class="page-hero">
+        <div class="container-shell">
+          <p class="kicker">Formulir aman</p>
+          <h1>Selesaikan niat baik Anda</h1>
+          <p id="donation-program-title">Memuat program…</p>
+        </div>
+      </section>
+      <section class="section-sm">
+        <div class="container-shell">
+          <div id="donation-error" class="surface status-card hidden">
+            <h2>Formulir tidak tersedia</h2>
+            <p id="donation-error-message"></p>
+            <a class="btn btn-primary" href="/program/">Pilih program</a>
+          </div>
+          <form id="donation-form" novalidate>
+            <div class="donate-layout">
+              <div class="surface form-card">
+                <h2>1. Nominal sedekah</h2>
+                <div
+                  id="package-summary"
+                  class="notice notice-success hidden"
+                ></div>
+                <div id="quantity-wrap" class="form-group hidden">
+                  <label class="field-label" for="quantity">Jumlah paket</label
+                  ><input
+                    id="quantity"
+                    class="field"
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value="1"
+                  />
+                </div>
+                <div id="amount-wrap" class="form-group">
+                  <span class="field-label">Pilih nominal sedekah</span>
+                  <div id="nominal-grid" class="nominal-grid" role="group" aria-label="Pilih nominal sedekah">
+                    <button type="button" class="nominal-card" data-amount="50000" aria-pressed="true">Rp50.000</button>
+                    <button type="button" class="nominal-card" data-amount="100000" aria-pressed="false">Rp100.000</button>
+                    <button type="button" class="nominal-card" data-amount="150000" aria-pressed="false">Rp150.000</button>
+                    <button type="button" class="nominal-card" data-amount="200000" aria-pressed="false">Rp200.000</button>
+                    <button type="button" class="nominal-card" data-amount="250000" aria-pressed="false">Rp250.000</button>
+                    <button type="button" class="nominal-card" data-amount="500000" aria-pressed="false">Rp500.000</button>
+                    <button type="button" class="nominal-card" data-amount="other" aria-pressed="false">Nominal lainnya</button>
+                  </div>
+                  <label id="amount-custom-label" class="field-label hidden" for="amount">Masukkan nominal lainnya</label><input
+                    id="amount"
+                    class="field hidden"
+                    type="number"
+                    min="10000"
+                    max="100000000"
+                    step="1000"
+                    value="50000"
+                    required
+                  /><span id="amount-error" class="field-error"></span>
+                </div>
+                <h2>2. Data donatur</h2>
+                <div class="form-group">
+                  <label class="field-label" for="name">Nama lengkap</label
+                  ><input
+                    id="name"
+                    class="field"
+                    maxlength="80"
+                    autocomplete="name"
+                    required
+                  /><span id="name-error" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                  <label class="field-label" for="phone">Nomor WhatsApp</label
+                  ><input
+                    id="phone"
+                    class="field"
+                    type="tel"
+                    maxlength="18"
+                    autocomplete="tel"
+                    required
+                  /><span id="phone-error" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                  <label class="field-label" for="email">Email untuk konfirmasi sedekah</label
+                  ><input
+                    id="email"
+                    class="field"
+                    type="email"
+                    maxlength="120"
+                    autocomplete="email"
+                    required
+                  /><span id="email-error" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                  <label class="field-label" for="prayer">Doa atau pesan</label
+                  ><textarea
+                    id="prayer"
+                    class="textarea"
+                    maxlength="500"
+                    placeholder="Tuliskan doa baik Anda…"
+                  ></textarea>
+                </div>
+                <label class="check-row"
+                  ><input id="publishPrayer" type="checkbox" checked /><span
+                    >Tampilkan doa saya pada halaman publik.</span
+                  ></label
+                ><label class="check-row"
+                  ><input id="anonymous" type="checkbox" /><span
+                    >Tampilkan nama sebagai <strong>Hamba Allah</strong>.</span
+                  ></label
+                >
+                <h2>3. Metode pembayaran</h2>
+                <div id="payment-options" class="payment-options">
+                  <label id="qris-choice" class="payment-choice"
+                    ><input
+                      type="radio"
+                      name="paymentMethod"
+                      value="qris"
+                      checked
+                    /><strong>QRIS Gateway</strong
+                    ><small
+                      >Pembayaran otomatis dan terverifikasi.</small
+                    ></label
+                  ><label id="bank-choice" class="payment-choice"
+                    ><input
+                      type="radio"
+                      name="paymentMethod"
+                      value="manual_bank"
+                    /><strong>Transfer rekening</strong
+                    ><small
+                      >Konfirmasi pembayaran dilakukan admin.</small
+                    ></label
+                  >
+                </div>
+                <div id="bank-selector" class="form-group hidden">
+                  <label class="field-label" for="bankAccountId"
+                    >Pilih rekening</label
+                  ><select id="bankAccountId" class="select"></select>
+                </div>
+                <label class="check-row" style="margin-top: 1rem"
+                  ><input id="terms" type="checkbox" required /><span
+                    >Saya menyetujui
+                    <a href="/syarat-ketentuan/" target="_blank" rel="noopener"
+                      >syarat & ketentuan</a
+                    >
+                    dan
+                    <a href="/kebijakan-privasi/" target="_blank" rel="noopener"
+                      >kebijakan privasi</a
+                    >.</span
+                  ></label
+                ><span id="terms-error" class="field-error"></span>
+              </div>
+              <aside class="surface summary-card">
+                <div class="summary-program">
+                  <img
+                    id="summary-image"
+                    class="summary-thumb"
+                    src="/assets/img/hero-charity.webp"
+                    alt=""
+                  />
+                  <div>
+                    <strong id="summary-program-title">Memuat…</strong
+                    ><span id="summary-program-org">—</span>
+                  </div>
+                </div>
+                <div class="summary-row">
+                  <span>Total sedekah</span
+                  ><strong id="summary-total">Rp0</strong>
+                </div>
+                <button
+                  id="submit-donation"
+                  class="btn btn-primary btn-lg"
+                  type="submit"
+                  style="width: 100%"
+                >
+                  Lanjut Sedekah Rp50.000
+                </button>
+                <div class="secure-note">
+                  <span
+                    >Data pembayaran diverifikasi server. PIN, OTP, dan kata
+                    sandi bank tidak pernah diminta.</span
+                  >
+                </div>
+              </aside>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+    <div data-site-footer></div>
+  </body>
+</html>

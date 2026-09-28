@@ -1,0 +1,18 @@
+DirectoryIndex index.html
+Options -Indexes
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule (^|/)(?:\.git|backend-appscript|firebase)(?:/|$) - [F,NC]
+  RewriteRule ^api/(?:config(?:\.local)?\.php|.*\.(?:zip|log))$ - [F,NC]
+  RewriteRule ^(?:README\.md|.*\.(?:zip|gs|json\.example))$ - [F,NC]
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^program/[a-z0-9-]+/?$ /program/index.html [L,NC]
+</IfModule>
+
+<FilesMatch "^(?:config(?:\.local)?\.php|error_log|\.htaccess)$">
+  Require all denied
+</FilesMatch>
